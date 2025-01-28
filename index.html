@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Environmental Savings Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 200px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0;
+    }
+    select, input, button {
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo Section -->
+  <img src="/Users/reedklapman/Desktop/BKI LETTER HEAD AND LOGOS/Default Logocopy.png" alt="Company Logo" class="logo">
+  
+  <h1>Environmental Savings Calculator</h1>
+  <div class="container">
+    <label for="material">Select Material:</label>
+    <select id="material">
+      <option value="cardboard">Cardboard</option>
+      <option value="paper">Paper</option>
+      <option value="plastic">Plastic</option>
+    </select>
+
+    <label for="tons">Enter Weight (in tons):</label>
+    <input type="number" id="tons" value="1" min="0.1" step="0.1">
+
+    <button onclick="calculateSavings()">Calculate Savings</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Resource</th>
+          <th>Amount Saved</th>
+          <th>Equivalencies</th>
+        </tr>
+      </thead>
+      <tbody id="results">
+        <!-- Results will appear here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const savingsData = {
+      cardboard: { Trees: 17, Water: 7000, Energy: 4000, 'Landfill Space': 9, Oil: 380, CO2: 600 },
+      paper: { Trees: 24, Water: 7500, Energy: 5000, 'Landfill Space': 10, Oil: 0, CO2: 900 },
+      plastic: { Trees: 0, Water: 1000, Energy: 2000, 'Landfill Space': 7, Oil: 1500, CO2: 1200 }
+    };
+
+    const equivalencies = {
+      Water: { perShower: 17.2 }, // Average shower uses ~17.2 gallons
+      Energy: { perHouseholdHour: 1 }, // Assume 1 kWh powers a house for an hour
+      Oil: { perMile: 0.04 } // Average car uses ~0.04 gallons per mile
+    };
+
+    function calculateSavings() {
+      const material = document.getElementById('material').value;
+      const tons = parseFloat(document.getElementById('tons').value);
+      const resultsTable = document.getElementById('results');
+
+      if (isNaN(tons) || tons <= 0) {
+        alert('Please enter a valid number greater than zero.');
+        return;
+      }
+
+      const materialData = savingsData[material];
+      resultsTable.innerHTML = ''; // Clear previous results
+
+      for (const [resource, value] of Object.entries(materialData)) {
+        const saved = value * tons;
+        let equivalency = '';
+
+        if (resource === 'Water') {
+          const showers = Math.round(saved / equivalencies.Water.perShower);
+          equivalency = `${saved.toLocaleString()} gallons (~${showers} showers)`;
+        } else if (resource === 'Energy') {
+          equivalency = `${saved.toLocaleString()} kWh (~${saved.toLocaleString()} hours of power for a home)`;
+        } else if (resource === 'Oil') {
+          const miles = Math.round(saved / equivalencies.Oil.perMile);
+          equivalency = `${saved.toLocaleString()} gallons (~${miles.toLocaleString()} miles driven)`;
+        } else if (resource === 'CO2') {
+          equivalency = `${saved.toLocaleString()} lbs of CO₂ emissions prevented`;
+        } else {
+          equivalency = `${saved.toLocaleString()} units`;
+        }
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${resource}</td>
+          <td>${saved.toLocaleString()}</td>
+          <td>${equivalency}</td>
+        `;
+        resultsTable.appendChild(row);
+      }
+    }
+  </script>
+</body>
+</html>
